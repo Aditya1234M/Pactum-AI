@@ -34,19 +34,11 @@
 
 ---
 
-## 🚀 How to Run Locally
+## 🚀 Live Deployment
 
-You can run the web app with any static HTTP server:
+Try Pactum AI on the live Google Cloud Run deployment:
 
-```bash
-# Using serve
-npx serve -l 3000 .
-
-# Or using Python
-python -m http.server 3000
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+[Open Pactum AI](https://promptwars-exclusive-460149421424.us-central1.run.app)
 
 ---
 
