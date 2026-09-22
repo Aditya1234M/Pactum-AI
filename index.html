@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pactum AI - GenAI Legal Document Analyzer & Intelligence Suite</title>
+  <meta name="description" content="Pactum AI simplifies complex legal contracts, identifies hidden risks, compares agreements side-by-side, and generates actionable lawyer prep kits. Built for the PromptWars Exclusive Challenge.">
+
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Non-Replacing Legal Disclaimer Banner -->
+  <aside class="disclaimer-banner" role="complementary" aria-label="Legal disclaimer">
+    <span>⚖️</span>
+    <span><strong>Legal Information Notice:</strong> Pactum AI is an AI-powered legal intelligence and document analysis assistant. It provides educational information and document navigation, not formal legal advice. Always consult a licensed attorney for binding legal matters.</span>
+  </aside>
+
+  <!-- Top Header Navigation -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-logo" id="logoBtn">
+        <div class="brand-icon">📜</div>
+        <div>
+          <span class="brand-title">Pactum AI</span>
+        </div>
+        <span class="brand-tag">Exclusive GenAI</span>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs" aria-label="Main Navigation">
+        <button class="tab-btn active" data-tab="tab-analyze" id="navAnalyze">
+          <span>🔍</span> Document Matrix
+        </button>
+        <button class="tab-btn" data-tab="tab-compare" id="navCompare">
+          <span>⚖️</span> Contract Diff & Delta
+        </button>
+        <button class="tab-btn" data-tab="tab-assistant" id="navAssistant">
+          <span>💬</span> Ask Pactum AI
+        </button>
+        <button class="tab-btn" data-tab="tab-prepkit" id="navPrepKit">
+          <span>📋</span> Lawyer Prep & Checklist
+        </button>
+      </nav>
+
+      <!-- Actions -->
+      <div class="header-actions">
+        <button class="btn-secondary" id="openSettingsBtn" title="Configure Live API Key">
+          <span>⚙️</span> API Settings
+        </button>
+        <button class="btn-primary" id="exportReportBtn" title="Export Legal Audit Summary">
+          <span>📥</span> Export Brief
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-main">
+
+    <!-- Quick Sample Selector Bar -->
+    <section class="sample-bar" aria-label="Sample Contracts">
+      <div class="sample-title-group">
+        <span class="sample-label">⚡ Load Pre-built Test Contracts:</span>
+      </div>
+      <div class="sample-chips" id="sampleButtons">
+        <button class="chip-btn active" data-sample="consulting_harsh">⚠️ Harsh Contractor MSA (High Risk)</button>
+        <button class="chip-btn" data-sample="consulting_balanced">✅ Balanced Counter-Offer (Fair)</button>
+        <button class="chip-btn" data-sample="commercial_lease">🏢 Commercial Lease (NNN & Guarantee)</button>
+        <button class="chip-btn" data-sample="saas_tos">☁️ SaaS Terms of Service (AI Training License)</button>
+      </div>
+    </section>
+
+    <!-- TAB 1: Document Matrix & Analysis -->
+    <section id="tab-analyze" class="tab-panel active">
+      <div class="analyzer-grid">
+        
+        <!-- Left: Document Input Panel -->
+        <div class="doc-input-card">
+          <div class="card-header-flex">
+            <h2 class="card-heading">📄 Legal Text Input</h2>
+            <button class="btn-secondary" id="clearTextBtn" style="padding: 4px 10px; font-size: 0.75rem;">Clear</button>
+          </div>
+
+          <textarea id="docInputText" class="textarea-doc" placeholder="Paste your contract, lease, terms of service, or NDA here..."></textarea>
+          
+          <label class="upload-dropzone" for="fileUploadInput">
+            <span>📁 Upload .txt / .md contract file</span>
+            <input type="file" id="fileUploadInput" accept=".txt,.md,.text" style="display: none;">
+          </label>
+
+          <button id="runAnalyzeBtn" class="btn-primary" style="justify-content: center; width: 100%;">
+            <span>⚡ Run GenAI Analysis</span>
+          </button>
+        </div>
+
+        <!-- Right: Real-time Analysis Dashboard -->
+        <div class="analysis-results">
+          
+          <!-- Key Metrics -->
+          <div class="metrics-row">
+            <div class="metric-card">
+              <div class="metric-icon-box danger" id="riskScoreIcon">🔥</div>
+              <div class="metric-info">
+                <span class="metric-val" id="metricRiskScore">82 / 100</span>
+                <span class="metric-title" id="metricRiskGrade">High Risk Contract</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-icon-box warning">🚩</div>
+              <div class="metric-info">
+                <span class="metric-val" id="metricRedFlags">4 Traps</span>
+                <span class="metric-title">Critical Red Flags</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-icon-box success">🛡️</div>
+              <div class="metric-info">
+                <span class="metric-val" id="metricSafeClauses">3 Clauses</span>
+                <span class="metric-title">Balanced Provisions</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-icon-box primary">📑</div>
+              <div class="metric-info">
+                <span class="metric-val" id="metricTotalClauses">7</span>
+                <span class="metric-title">Total Clauses Evaluated</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filter & Clause Header -->
+          <div class="clauses-header">
+            <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700;">Clause-by-Clause Plain English Matrix</h3>
+            <div class="filter-pills" id="clauseFilters">
+              <button class="filter-btn active" data-filter="all">All</button>
+              <button class="filter-btn" data-filter="High">🔴 High Risk</button>
+              <button class="filter-btn" data-filter="Medium">🟡 Moderate</button>
+              <button class="filter-btn" data-filter="Safe">🟢 Fair</button>
+            </div>
+          </div>
+
+          <!-- Rendered Clauses Container -->
+          <div id="clausesContainer">
+            <!-- Dynamically populated -->
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: Contract Diff & Comparison -->
+    <section id="tab-compare" class="tab-panel">
+      <div class="compare-verdict-card" id="compareVerdictCard">
+        <div class="verdict-header">
+          <div class="verdict-title" id="compareWinnerTitle">⚖️ Comparative Risk Delta Analysis</div>
+          <span class="clause-badge badge-safe" id="compareDeltaBadge">-58 Risk Points</span>
+        </div>
+        <p class="verdict-text" id="compareVerdictText">Loading contract comparison insights...</p>
+      </div>
+
+      <div class="compare-grid">
+        <div class="doc-side-card">
+          <div class="card-header-flex" style="margin-bottom: 12px;">
+            <h3 class="card-heading">Document A (Baseline / Current Offer)</h3>
+            <span class="clause-badge badge-high" id="docARiskBadge">High Risk</span>
+          </div>
+          <textarea id="compareDocA" class="textarea-doc" style="height: 240px;"></textarea>
+        </div>
+
+        <div class="doc-side-card">
+          <div class="card-header-flex" style="margin-bottom: 12px;">
+            <h3 class="card-heading">Document B (Counter-Offer / Revised)</h3>
+            <span class="clause-badge badge-safe" id="docBRiskBadge">Low Risk</span>
+          </div>
+          <textarea id="compareDocB" class="textarea-doc" style="height: 240px;"></textarea>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: center; margin-bottom: 24px;">
+        <button id="runCompareBtn" class="btn-primary" style="padding: 10px 28px; font-size: 0.95rem;">
+          <span>⚖️ Compare Contracts & Run Risk Delta</span>
+        </button>
+      </div>
+
+      <!-- Diff Table -->
+      <div class="diff-table-responsive">
+        <table class="diff-table">
+          <thead>
+            <tr>
+              <th style="width: 8%;">Clause #</th>
+              <th style="width: 32%;">Document A (Original)</th>
+              <th style="width: 32%;">Document B (Revised)</th>
+              <th style="width: 14%;">Status</th>
+              <th style="width: 14%;">AI Impact Analysis</th>
+            </tr>
+          </thead>
+          <tbody id="diffTableBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 3: Interactive Grounded Assistant -->
+    <section id="tab-assistant" class="tab-panel">
+      <div class="chat-container">
+        <div class="chat-header">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="chat-avatar ai">🤖</div>
+            <div>
+              <h3 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700;">Ask Pactum AI</h3>
+              <p style="font-size: 0.76rem; color: var(--text-muted);">Grounded Legal Assistant with Direct Contract Citations</p>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="clause-badge badge-safe" id="engineStatusBadge">Engine: Grounded Offline + Multi-LLM Ready</span>
+          </div>
+        </div>
+
+        <!-- Chat History -->
+        <div class="chat-messages" id="chatMessages">
+          <!-- Initial AI welcome message -->
+          <div class="chat-message">
+            <div class="chat-avatar ai">🤖</div>
+            <div class="chat-bubble">
+              <p>Hello! I am <strong>Pactum AI</strong>, your legal document intelligence assistant. I analyze your uploaded contract, answer questions with exact clause quotes, and pinpoint legal traps. How can I help you navigate this agreement?</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Question Prompts -->
+        <div class="chat-quick-questions">
+          <span style="font-size: 0.75rem; color: var(--text-subtle); white-space: nowrap;">Try asking:</span>
+          <button class="chip-btn" data-question="Can I work for another company or consult on the side?">Can I take side jobs?</button>
+          <button class="chip-btn" data-question="When do I get paid and what happens if there are delays?">Payment terms & penalties?</button>
+          <button class="chip-btn" data-question="Do I own my code and pre-existing tools?">Who owns my IP?</button>
+          <button class="chip-btn" data-question="What are my liabilities if a dispute occurs?">What is my liability cap?</button>
+          <button class="chip-btn" data-question="How can I terminate or exit this contract?">How do I cancel or exit?</button>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="chat-input-bar">
+          <input type="text" id="chatInput" class="chat-input" placeholder="Ask anything about your contract (e.g., 'What happens if I miss a deadline?')...">
+          <button id="sendChatBtn" class="btn-primary">
+            <span>Send</span> ✈️
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: Actionable Outputs & Lawyer Prep Kit -->
+    <section id="tab-prepkit" class="tab-panel">
+      <div class="prepkit-grid">
+        
+        <!-- Left: Actionable Obligations & Deadlines Checklist -->
+        <div class="prep-card">
+          <div class="card-header-flex" style="margin-bottom: 16px;">
+            <div>
+              <h3 class="card-heading">✅ Actionable Obligations & Next Steps</h3>
+              <p style="font-size: 0.78rem; color: var(--text-muted);">Key deadlines, notice requirements, and mandatory actions</p>
+            </div>
+            <button class="btn-secondary" id="printChecklistBtn" style="padding: 4px 10px; font-size: 0.75rem;">Print Checklist</button>
+          </div>
+
+          <div id="checklistContainer">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Right: Counter-Offer Negotiation Playbook & Lawyer Prep -->
+        <div class="prep-card">
+          <div class="card-header-flex" style="margin-bottom: 16px;">
+            <div>
+              <h3 class="card-heading">🎯 Negotiation Playbook & Redlines</h3>
+              <p style="font-size: 0.78rem; color: var(--text-muted);">Copy-paste counter-clauses & commercial reasoning</p>
+            </div>
+            <span class="clause-badge badge-medium">Attorney Vetted Tactics</span>
+          </div>
+
+          <div id="playbookContainer">
+            <!-- Dynamically populated -->
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 20px 0;">
+
+          <!-- Top 5 Questions for your Lawyer -->
+          <div class="card-header-flex" style="margin-bottom: 12px;">
+            <h4 style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: #a5b4fc;">
+              ⚖️ Top 5 Questions To Ask Your Attorney
+            </h4>
+          </div>
+          <ul id="lawyerQuestionsList" style="padding-left: 20px; font-size: 0.85rem; color: #cbd5e1; display: flex; flex-direction: column; gap: 8px;">
+            <!-- Dynamically populated -->
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Settings Modal (API Key Configuration) -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-content">
+      <h3 class="modal-title">⚙️ GenAI Engine Settings</h3>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 18px;">
+        Pactum AI includes an intelligent offline heuristic engine that works immediately. You can also plug in your own API key to query live models (Gemini 1.5, GPT-4o, or Llama 3.1).
+      </p>
+
+      <div class="form-group">
+        <label class="form-label" for="apiProviderSelect">AI Provider</label>
+        <select id="apiProviderSelect" class="form-select">
+          <option value="gemini">Google Gemini (Gemini 1.5 Flash)</option>
+          <option value="openai">OpenAI (GPT-4o Mini)</option>
+          <option value="openrouter">OpenRouter (Llama 3.1 / DeepSeek)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="apiKeyInput">API Key</label>
+        <input type="password" id="apiKeyInput" class="form-input" placeholder="Enter your API Key (e.g. AIzaSy... or sk-...)">
+        <span style="font-size: 0.72rem; color: var(--text-subtle); display: block; margin-top: 4px;">Keys are stored strictly in your local browser storage and never transmitted to any central server.</span>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+        <button class="btn-secondary" id="closeSettingsBtn">Cancel</button>
+        <button class="btn-primary" id="saveSettingsBtn">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="js/samples.js"></script>
+  <script src="js/analyzer.js"></script>
+  <script src="js/comparator.js"></script>
+  <script src="js/assistant.js"></script>
+  <script src="js/prepkit.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
