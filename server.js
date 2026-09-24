@@ -4,9 +4,21 @@ const path = require("node:path");
 
 const PORT = Number(process.env.PORT || 8080);
 const ROOT = __dirname;
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.0-flash";
 const MAX_BODY_BYTES = 1024 * 1024;
 const MAX_DOCUMENT_CHARS = 12000;
+
+function loadLocalCredentials() {
+  try {
+    const filePath = path.join(ROOT, "capi", "credentials.json");
+    return JSON.parse(fs.readFileSync(filePath, "utf8"));
+  } catch {
+    return {};
+  }
+}
+
+const localCredentials = loadLocalCredentials();
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || localCredentials.GEMINI_API_KEY || "";
+const GEMINI_MODEL = process.env.GEMINI_MODEL || localCredentials.GEMINI_MODEL || "gemini-2.0-flash";
 
 const contentTypes = {
   ".html": "text/html; charset=utf-8",
@@ -70,7 +82,7 @@ ${question.slice(0, 1200)}`;
 }
 
 async function handleAsk(req, res) {
-  if (!process.env.GEMINI_API_KEY) {
+  if (!GEMINI_API_KEY) {
     sendJson(res, 503, { error: "Server GenAI is not configured; use the offline engine." });
     return;
   }
@@ -90,7 +102,7 @@ async function handleAsk(req, res) {
     return;
   }
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent?key=${encodeURIComponent(process.env.GEMINI_API_KEY)}`;
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
   try {
     const response = await fetch(endpoint, {
       method: "POST",
@@ -139,6 +151,11 @@ async function handleAsk(req, res) {
 
 function serveStatic(req, res, requestUrl) {
   const requestedPath = requestUrl.pathname === "/" ? "/index.html" : requestUrl.pathname;
+  if (requestedPath.startsWith("/capi/") || requestedPath === "/.env") {
+    res.writeHead(404, securityHeaders);
+    res.end("Not found");
+    return;
+  }
   const safePath = path.normalize(requestedPath).replace(/^([/\\])+/, "");
   const filePath = path.join(ROOT, safePath);
   if (!filePath.startsWith(ROOT) || !fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {

@@ -50,18 +50,11 @@ npm test
 
 The test suite covers risk scoring, deadline extraction, contract comparison, and lawyer prep-kit generation. The Cloud Run container also sends security headers for content type protection, framing protection, referrer control, and a restricted content policy.
 
-## 🔐 Configure Gemini on Cloud Run
+## 🔐 Configure Gemini
 
-The browser never receives the Gemini key. Prefer a Secret Manager-backed Cloud Run value:
+For local use, copy `capi/credentials.example.json` to `capi/credentials.json` and paste your Google AI Studio key into the new file. That real credentials file is ignored by Git, excluded from the container build context, and blocked from public serving. The browser never sees the key.
 
-```bash
-gcloud run services update promptwars-exclusive \
-   --region us-central1 \
-   --set-secrets GEMINI_API_KEY=gemini-api-key:latest \
-   --set-env-vars GEMINI_MODEL=gemini-2.0-flash
-```
-
-Create `gemini-api-key` in Secret Manager first and grant the Cloud Run service account access. Never place a real key in frontend JavaScript, `.env.example`, or GitHub. Without the key, Pactum AI automatically uses its offline grounded engine.
+For the deployed Cloud Run service, provide the same value as `GEMINI_API_KEY` when updating the service. Without a configured key, Pactum AI automatically uses its offline grounded engine.
 
 ---
 
