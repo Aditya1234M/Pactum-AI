@@ -1,9 +1,9 @@
-FROM nginx:1.27-alpine
+FROM node:22-alpine
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY index.html styles.css /usr/share/nginx/html/
-COPY js/ /usr/share/nginx/html/js/
+WORKDIR /app
+COPY package.json server.js index.html styles.css ./
+COPY js/ ./js/
 
 EXPOSE 8080
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", "server.js"]

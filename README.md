@@ -21,7 +21,7 @@
 3. **Interactive Grounded Assistant ("Ask Pactum AI")**
    - Context-grounded Q&A engine that quotes exact contract lines and clause numbers.
    - Pre-loaded quick prompts (`"Can I take side jobs?"`, `"Who owns my IP?"`, `"Payment terms & penalties?"`).
-   - Offline-first architecture: Works 100% out of the box with zero configuration. Optional live model connectors remain available for users who provide their own API key.
+   - Server-side GenAI architecture: Uses Gemini through the Cloud Run backend when `GEMINI_API_KEY` is configured, with the grounded offline engine as a reliable zero-configuration fallback.
 
 4. **Actionable Deliverables & Lawyer Prep Kit**
    - **Obligations & Deadlines Checklist**: Automatically extracts key calendar dates and milestones into an interactive to-do list.
@@ -49,6 +49,19 @@ npm test
 ```
 
 The test suite covers risk scoring, deadline extraction, contract comparison, and lawyer prep-kit generation. The Cloud Run container also sends security headers for content type protection, framing protection, referrer control, and a restricted content policy.
+
+## 🔐 Configure Gemini on Cloud Run
+
+The browser never receives the Gemini key. Prefer a Secret Manager-backed Cloud Run value:
+
+```bash
+gcloud run services update promptwars-exclusive \
+   --region us-central1 \
+   --set-secrets GEMINI_API_KEY=gemini-api-key:latest \
+   --set-env-vars GEMINI_MODEL=gemini-2.0-flash
+```
+
+Create `gemini-api-key` in Secret Manager first and grant the Cloud Run service account access. Never place a real key in frontend JavaScript, `.env.example`, or GitHub. Without the key, Pactum AI automatically uses its offline grounded engine.
 
 ---
 

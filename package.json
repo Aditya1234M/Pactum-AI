@@ -2,6 +2,7 @@
   "name": "pactum-ai",
   "private": true,
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "start": "node server.js"
   }
 }

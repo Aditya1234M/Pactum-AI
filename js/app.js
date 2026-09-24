@@ -33,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatMessages = document.getElementById("chatMessages");
   const chatInput = document.getElementById("chatInput");
   const sendChatBtn = document.getElementById("sendChatBtn");
+  const engineStatusBadge = document.getElementById("engineStatusBadge");
 
   // PrepKit Tab
   const checklistContainer = document.getElementById("checklistContainer");
@@ -43,10 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Modals & Actions
   const openSettingsBtn = document.getElementById("openSettingsBtn");
   const closeSettingsBtn = document.getElementById("closeSettingsBtn");
-  const saveSettingsBtn = document.getElementById("saveSettingsBtn");
   const settingsModal = document.getElementById("settingsModal");
-  const apiProviderSelect = document.getElementById("apiProviderSelect");
-  const apiKeyInput = document.getElementById("apiKeyInput");
   const exportReportBtn = document.getElementById("exportReportBtn");
 
   let currentParsedDoc = null;
@@ -438,21 +436,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 12. Settings Modal
   openSettingsBtn.addEventListener("click", () => {
-    apiProviderSelect.value = localStorage.getItem("pactum_api_provider") || "gemini";
-    apiKeyInput.value = localStorage.getItem("pactum_api_key") || "";
     settingsModal.classList.add("active");
   });
 
   closeSettingsBtn.addEventListener("click", () => {
     settingsModal.classList.remove("active");
-  });
-
-  saveSettingsBtn.addEventListener("click", () => {
-    const prov = apiProviderSelect.value;
-    const key = apiKeyInput.value.trim();
-    window.pactumAssistant.setCredentials(prov, key);
-    settingsModal.classList.remove("active");
-    showToast("Settings updated successfully!");
   });
 
   // 13. Export Report (Print or Markdown download)
@@ -535,6 +523,24 @@ DISCLAIMER: Pactum AI provides educational information and document analysis, no
     return "clause-badge badge-safe";
   }
 
+  async function refreshEngineStatus() {
+    if (!engineStatusBadge) return;
+    try {
+      const response = await fetch("/api/health");
+      const health = await response.json();
+      engineStatusBadge.textContent = health.genaiConfigured
+        ? "Engine: Gemini + Offline Fallback"
+        : "Engine: Offline Fallback (Gemini not configured)";
+      engineStatusBadge.className = health.genaiConfigured
+        ? "clause-badge badge-safe"
+        : "clause-badge badge-medium";
+    } catch {
+      engineStatusBadge.textContent = "Engine: Offline Review";
+      engineStatusBadge.className = "clause-badge badge-medium";
+    }
+  }
+
   // Load Initial Default Contract
+  refreshEngineStatus();
   loadSample("consulting_harsh");
 });

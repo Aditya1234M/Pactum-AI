@@ -3,31 +3,36 @@
 class PactumAssistant {
   constructor() {
     this.history = [];
-    this.apiKey = localStorage.getItem("pactum_api_key") || "";
-    this.apiProvider = localStorage.getItem("pactum_api_provider") || "gemini"; // "gemini", "openai", "openrouter"
-  }
-
-  setCredentials(provider, key) {
-    this.apiProvider = provider;
-    this.apiKey = key;
-    localStorage.setItem("pactum_api_provider", provider);
-    localStorage.setItem("pactum_api_key", key);
   }
 
   async askQuestion(question, documentText) {
     if (!question || !question.trim()) return null;
 
-    // If live API key is provided, we query the live GenAI endpoint
-    if (this.apiKey) {
-      try {
-        return await this.queryLiveLLM(question, documentText);
-      } catch (err) {
-        console.warn("Live API call failed, falling back to Pactum Grounded Engine:", err);
-      }
+    try {
+      return await this.queryServerLLM(question, documentText);
+    } catch (err) {
+      console.info("Server GenAI unavailable; using offline grounded engine.", err.message);
     }
 
     // Default: Grounded Local Heuristic GenAI Engine
     return this.queryGroundedEngine(question, documentText);
+  }
+
+  async queryServerLLM(question, documentText) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+    try {
+      const response = await fetch("/api/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question, documentText }),
+        signal: controller.signal
+      });
+      if (!response.ok) throw new Error(`Server response ${response.status}`);
+      return await response.json();
+    } finally {
+      clearTimeout(timeout);
+    }
   }
 
   queryGroundedEngine(question, documentText) {
@@ -131,70 +136,6 @@ class PactumAssistant {
     };
   }
 
-  async queryLiveLLM(question, documentText) {
-    const prompt = `You are Pactum AI, an expert legal document analyst assistant.
-Analyze the following legal document and answer the user's question accurately.
-Provide:
-1. Direct, plain-English answer.
-2. Grounded quote / citation from the document.
-3. Risk rating (High, Medium, Safe).
-4. Practical recommendation / next step.
-Always remember you provide legal information and assistance, not formal legal counsel.
-
-DOCUMENT:
-${documentText.slice(0, 10000)}
-
-QUESTION:
-${question}`;
-
-    if (this.apiProvider === "gemini") {
-      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
-        })
-      });
-      const data = await resp.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No response received.";
-      return {
-        question,
-        answer: rawText,
-        citation: "Live GenAI Analysis (Gemini 1.5)",
-        confidence: "Very High",
-        riskFlag: "Live Evaluation",
-        actionItem: "Review findings before executing contract modifications."
-      };
-    } else {
-      // OpenAI / OpenRouter format
-      const endpoint = this.apiProvider === "openrouter" 
-        ? "https://openrouter.ai/api/v1/chat/completions" 
-        : "https://api.openai.com/v1/chat/completions";
-      const model = this.apiProvider === "openrouter" ? "meta-llama/llama-3.1-8b-instruct:free" : "gpt-4o-mini";
-
-      const resp = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${this.apiKey}`
-        },
-        body: JSON.stringify({
-          model,
-          messages: [{ role: "user", content: prompt }]
-        })
-      });
-      const data = await resp.json();
-      const rawText = data?.choices?.[0]?.message?.content || "No response received.";
-      return {
-        question,
-        answer: rawText,
-        citation: `Live GenAI Analysis (${model})`,
-        confidence: "Very High",
-        riskFlag: "Live Evaluation",
-        actionItem: "Consult attorney with this generated brief."
-      };
-    }
-  }
 }
 
 window.pactumAssistant = new PactumAssistant();
