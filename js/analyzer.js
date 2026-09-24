@@ -171,18 +171,17 @@ class PactumAnalyzer {
 
   extractDeadlines(text) {
     const deadlines = [];
-    const regex = /(\d+\s*(?:days|calendar days|months|years|hours|weeks))/gi;
+    const regex = /(\d+|[a-z]+(?:-[a-z]+)?)(?:\s*\(\s*(\d+)\s*\))?\s*(calendar\s+days?|days?|months?|years?|hours?|weeks?)/gi;
     let match;
     const lines = text.split('\n');
     lines.forEach((line, index) => {
       while ((match = regex.exec(line)) !== null) {
         if (line.toLowerCase().includes("notice") || line.toLowerCase().includes("payment") || line.toLowerCase().includes("delay") || line.toLowerCase().includes("terminat")) {
           deadlines.push({
-            timeframe: match[0],
+            timeframe: `${match[2] || match[1]} ${match[3]}`,
             context: line.trim().slice(0, 140),
             lineNumber: index + 1
           });
-          break;
         }
       }
     });

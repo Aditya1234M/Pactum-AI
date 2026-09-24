@@ -1,4 +1,4 @@
-# Pactum AI - GenAI Legal Document Intelligence Suite
+# Pactum AI - Legal Document Intelligence Suite
 > Built for the **PromptWars Exclusive Challenge** (Top 1–400 Exclusive).
 
 **Pactum AI** makes legal documents and basic legal assistance accessible, actionable, and transparent. It helps users simplify legalese, spot predatory contractual traps, compare agreements side-by-side with risk deltas, ask grounded questions with verbatim clause citations, and generate actionable lawyer consultation prep kits.
@@ -21,7 +21,7 @@
 3. **Interactive Grounded Assistant ("Ask Pactum AI")**
    - Context-grounded Q&A engine that quotes exact contract lines and clause numbers.
    - Pre-loaded quick prompts (`"Can I take side jobs?"`, `"Who owns my IP?"`, `"Payment terms & penalties?"`).
-   - Dual-mode architecture: Works 100% out of the box with zero configuration, plus supports optional live API keys (Google Gemini 1.5, OpenAI GPT-4o, or OpenRouter Llama 3.1).
+   - Offline-first architecture: Works 100% out of the box with zero configuration. Optional live model connectors remain available for users who provide their own API key.
 
 4. **Actionable Deliverables & Lawyer Prep Kit**
    - **Obligations & Deadlines Checklist**: Automatically extracts key calendar dates and milestones into an interactive to-do list.
@@ -39,6 +39,16 @@
 Try Pactum AI on the live Google Cloud Run deployment:
 
 [Open Pactum AI](https://promptwars-exclusive-460149421424.us-central1.run.app)
+
+## ✅ Quality Checks
+
+Run the offline engine tests before publishing changes:
+
+```bash
+npm test
+```
+
+The test suite covers risk scoring, deadline extraction, contract comparison, and lawyer prep-kit generation. The Cloud Run container also sends security headers for content type protection, framing protection, referrer control, and a restricted content policy.
 
 ---
 
