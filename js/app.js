@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const fileUploadInput = document.getElementById("fileUploadInput");
   const runAnalyzeBtn = document.getElementById("runAnalyzeBtn");
   const clearTextBtn = document.getElementById("clearTextBtn");
+  const docStats = document.getElementById("docStats");
   const sampleButtons = document.getElementById("sampleButtons");
 
   // Metrics
@@ -101,6 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const parsed = window.pactumAnalyzer.parseDocument(text);
     if (!parsed) return;
     currentParsedDoc = parsed;
+    updateDocumentStats(text, parsed);
 
     // Update Metrics
     metricRiskScore.textContent = `${parsed.riskScore} / 100`;
@@ -153,7 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
         redFlagsHtml = `
           <div class="red-flags-alert">
             <div class="red-flags-title">⚠️ Identified Hidden Traps / Red Flags:</div>
-            <div class="red-flags-content">${clause.redFlags.join("<br>")}</div>
+            <div class="red-flags-content">${clause.redFlags.map(escapeHtml).join("<br>")}</div>
           </div>
         `;
       }
@@ -163,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
         lawyerTipHtml = `
           <div class="lawyer-tip-box">
             <span>💡</span>
-            <div class="lawyer-tip-text"><strong>Attorney Negotiation Advice:</strong> ${clause.lawyerAdvice}</div>
+            <div class="lawyer-tip-text"><strong>Attorney Negotiation Advice:</strong> ${escapeHtml(clause.lawyerAdvice)}</div>
           </div>
         `;
       }
@@ -171,17 +173,17 @@ document.addEventListener("DOMContentLoaded", () => {
       card.innerHTML = `
         <div class="clause-top">
           <div class="clause-title-wrap">
-            <h4 style="font-size: 1.05rem; font-weight: 700;">${clause.title}</h4>
+            <h4 style="font-size: 1.05rem; font-weight: 700;">${escapeHtml(clause.title)}</h4>
             <span class="clause-badge ${badgeClass}">${clause.riskLevel} Risk (${clause.riskScore}/100)</span>
           </div>
-          <span class="category-tag">${clause.category}</span>
+          <span class="category-tag">${escapeHtml(clause.category)}</span>
         </div>
 
         <div class="clause-raw-text">"${escapeHtml(clause.text)}"</div>
 
         <div class="plain-english-box">
           <div class="box-title-sm">✨ Plain English Translation (What it actually means):</div>
-          <p class="plain-english-content">${clause.plainEnglish}</p>
+          <p class="plain-english-content">${escapeHtml(clause.plainEnglish)}</p>
         </div>
 
         ${redFlagsHtml}
@@ -224,10 +226,10 @@ document.addEventListener("DOMContentLoaded", () => {
     compareDeltaBadge.className = diffResult.riskDelta >= 0 ? "clause-badge badge-safe" : "clause-badge badge-high";
 
     docARiskBadge.textContent = `Score: ${diffResult.analysisA.riskScore} (${diffResult.analysisA.riskGrade})`;
-    docARiskBadge.className = diffResult.analysisA.riskScore >= 70 ? "clause-badge badge-high" : "clause-badge badge-safe";
+    docARiskBadge.className = riskBadgeClass(diffResult.analysisA.riskScore);
 
     docBRiskBadge.textContent = `Score: ${diffResult.analysisB.riskScore} (${diffResult.analysisB.riskGrade})`;
-    docBRiskBadge.className = diffResult.analysisB.riskScore >= 70 ? "clause-badge badge-high" : "clause-badge badge-safe";
+    docBRiskBadge.className = riskBadgeClass(diffResult.analysisB.riskScore);
 
     // Populate Table
     diffTableBody.innerHTML = "";
@@ -276,7 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
       removeChatMessage(typingId);
 
       const aiContent = `
-        <p>${response.answer}</p>
+        <p>${escapeHtml(response.answer).replace(/\n/g, "<br>")}</p>
         <div class="citation-card">
           <div style="font-weight: 700; font-size: 0.72rem; color: #818cf8; text-transform: uppercase; margin-bottom: 2px;">📌 Exact Document Quote:</div>
           <em>${escapeHtml(response.citation)}</em>
@@ -341,14 +343,22 @@ document.addEventListener("DOMContentLoaded", () => {
       itemDiv.innerHTML = `
         <input type="checkbox" class="checklist-checkbox">
         <div class="checklist-content">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-            <span class="checklist-title">${item.title}</span>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; gap: 12px;">
+            <span class="checklist-title">${escapeHtml(item.title)}</span>
             <span class="clause-badge ${item.priority === 'High' ? 'badge-high' : 'badge-safe'}">${item.badge}</span>
           </div>
-          <p class="checklist-desc">${item.description}</p>
+          <p class="checklist-desc">${escapeHtml(item.description)}</p>
         </div>
       `;
       checklistContainer.appendChild(itemDiv);
+      const checklistKey = `pactum_check_${item.title}`;
+      const checkbox = itemDiv.querySelector(".checklist-checkbox");
+      checkbox.checked = localStorage.getItem(checklistKey) === "done";
+      itemDiv.classList.toggle("is-complete", checkbox.checked);
+      checkbox.addEventListener("change", () => {
+        localStorage.setItem(checklistKey, checkbox.checked ? "done" : "open");
+        itemDiv.classList.toggle("is-complete", checkbox.checked);
+      });
     });
 
     // Negotiation Playbook
@@ -359,13 +369,17 @@ document.addEventListener("DOMContentLoaded", () => {
       pDiv.className = "playbook-card";
       pDiv.innerHTML = `
         <div class="playbook-clause-title">
-          <span>${p.clauseTitle}</span>
-          <button class="copy-btn" onclick="navigator.clipboard.writeText('${escapeAttr(p.proposedRedline)}'); window.pactumShowToast('Counter-clause copied to clipboard!');">Copy Redline</button>
+          <span>${escapeHtml(p.clauseTitle)}</span>
+          <button class="copy-btn" type="button" data-redline="${escapeAttr(p.proposedRedline)}">Copy Redline</button>
         </div>
-        <div style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 4px;">Commercial Strategy: ${p.leverageArgument}</div>
-        <div class="redline-box"><strong>Proposed Counter-Language:</strong><br>${p.proposedRedline}</div>
+        <div style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 4px;">Commercial Strategy: ${escapeHtml(p.leverageArgument)}</div>
+        <div class="redline-box"><strong>Proposed Counter-Language:</strong><br>${escapeHtml(p.proposedRedline)}</div>
       `;
       playbookContainer.appendChild(pDiv);
+      pDiv.querySelector(".copy-btn").addEventListener("click", async (event) => {
+        await navigator.clipboard.writeText(event.currentTarget.dataset.redline);
+        showToast("Counter-clause copied to clipboard!");
+      });
     });
 
     // Top 5 Lawyer Questions
@@ -401,8 +415,21 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // 11. Clear text
+  docInputText.addEventListener("input", () => updateDocumentStats(docInputText.value, null));
+
   clearTextBtn.addEventListener("click", () => {
     docInputText.value = "";
+    currentParsedDoc = null;
+    metricRiskScore.textContent = "—";
+    metricRiskGrade.textContent = "Awaiting document";
+    metricRedFlags.textContent = "—";
+    metricSafeClauses.textContent = "—";
+    metricTotalClauses.textContent = "—";
+    clausesContainer.innerHTML = `<div class="empty-state"><strong>No document loaded</strong><span>Paste a contract or load a sample to begin the review.</span></div>`;
+    checklistContainer.innerHTML = `<div class="empty-state"><strong>Prep kit is waiting</strong><span>Run a contract review to generate obligations and redlines.</span></div>`;
+    playbookContainer.innerHTML = `<div class="empty-state"><strong>No redlines yet</strong><span>Risk-aware negotiation language will appear after review.</span></div>`;
+    lawyerQuestionsList.innerHTML = "";
+    updateDocumentStats("", null);
     showToast("Input text cleared.");
   });
 
@@ -492,6 +519,20 @@ DISCLAIMER: Pactum AI provides educational information and document analysis, no
   function escapeAttr(str) {
     if (!str) return "";
     return str.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+  }
+
+  function updateDocumentStats(text, parsed) {
+    if (!docStats) return;
+    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+    docStats.textContent = parsed
+      ? `${words.toLocaleString()} words · ${parsed.totalClauses} clauses reviewed`
+      : `${words.toLocaleString()} words · Ready for review`;
+  }
+
+  function riskBadgeClass(score) {
+    if (score >= 70) return "clause-badge badge-high";
+    if (score >= 40) return "clause-badge badge-medium";
+    return "clause-badge badge-safe";
   }
 
   // Load Initial Default Contract

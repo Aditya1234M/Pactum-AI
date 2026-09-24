@@ -387,6 +387,15 @@ body::after {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 
+.input-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: -8px;
+  color: var(--text-subtle);
+  font-size: 0.72rem;
+}
+
 .upload-dropzone {
   border: 2px dashed rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-md);
@@ -917,6 +926,32 @@ body::after {
   gap: 14px;
   padding: 14px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.checklist-item.is-complete {
+  opacity: 0.58;
+}
+
+.checklist-item.is-complete .checklist-title {
+  text-decoration: line-through;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 48px 24px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.empty-state strong {
+  color: var(--text-main);
+  font-family: var(--font-heading);
+  font-size: 1rem;
 }
 
 .checklist-checkbox {

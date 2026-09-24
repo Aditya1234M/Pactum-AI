@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pactum AI - GenAI Legal Document Analyzer & Intelligence Suite</title>
-  <meta name="description" content="Pactum AI simplifies complex legal contracts, identifies hidden risks, compares agreements side-by-side, and generates actionable lawyer prep kits. Built for the PromptWars Exclusive Challenge.">
+  <title>Pactum AI - Legal Document Intelligence Suite</title>
+  <meta name="description" content="Pactum AI simplifies complex legal contracts, identifies hidden risks, compares agreements side-by-side, and generates actionable lawyer prep kits.">
 
   <!-- Google Fonts: Outfit & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,7 +29,7 @@
         <div>
           <span class="brand-title">Pactum AI</span>
         </div>
-        <span class="brand-tag">Exclusive GenAI</span>
+        <span class="brand-tag">Contract Intelligence</span>
       </div>
 
       <!-- Navigation Tabs -->
@@ -41,7 +41,7 @@
           <span>⚖️</span> Contract Diff & Delta
         </button>
         <button class="tab-btn" data-tab="tab-assistant" id="navAssistant">
-          <span>💬</span> Ask Pactum AI
+          <span>💬</span> Ask Pactum
         </button>
         <button class="tab-btn" data-tab="tab-prepkit" id="navPrepKit">
           <span>📋</span> Lawyer Prep & Checklist
@@ -51,7 +51,7 @@
       <!-- Actions -->
       <div class="header-actions">
         <button class="btn-secondary" id="openSettingsBtn" title="Configure Live API Key">
-          <span>⚙️</span> API Settings
+            <span>⚙️</span> Optional API
         </button>
         <button class="btn-primary" id="exportReportBtn" title="Export Legal Audit Summary">
           <span>📥</span> Export Brief
@@ -87,7 +87,11 @@
             <button class="btn-secondary" id="clearTextBtn" style="padding: 4px 10px; font-size: 0.75rem;">Clear</button>
           </div>
 
-          <textarea id="docInputText" class="textarea-doc" placeholder="Paste your contract, lease, terms of service, or NDA here..."></textarea>
+          <textarea id="docInputText" class="textarea-doc" placeholder="Paste your contract, lease, terms of service, or NDA here..." aria-label="Contract text"></textarea>
+          <div class="input-meta" aria-live="polite">
+            <span id="docStats">0 words · Ready for review</span>
+            <span>Plain text, .txt, or .md</span>
+          </div>
           
           <label class="upload-dropzone" for="fileUploadInput">
             <span>📁 Upload .txt / .md contract file</span>
@@ -95,7 +99,7 @@
           </label>
 
           <button id="runAnalyzeBtn" class="btn-primary" style="justify-content: center; width: 100%;">
-            <span>⚡ Run GenAI Analysis</span>
+            <span>⚡ Run Contract Review</span>
           </button>
         </div>
 
@@ -222,7 +226,7 @@
             </div>
           </div>
           <div style="display: flex; align-items: center; gap: 8px;">
-            <span class="clause-badge badge-safe" id="engineStatusBadge">Engine: Grounded Offline + Multi-LLM Ready</span>
+            <span class="clause-badge badge-safe" id="engineStatusBadge">Engine: Grounded Offline</span>
           </div>
         </div>
 
