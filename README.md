@@ -52,7 +52,7 @@ The test suite covers risk scoring, deadline extraction, contract comparison, an
 
 ## 🔐 Configure Gemini
 
-For local use, copy `capi/credentials.example.json` to `capi/credentials.json` and paste your Google AI Studio key into the new file. That real credentials file is ignored by Git, excluded from the container build context, and blocked from public serving. The browser never sees the key.
+For local use, copy `capi/credentials.example.json` to `capi/credentials.json` and paste your Google AI Studio key into the new file. The example uses the lightweight `gemini-flash-lite-latest` alias for fast, low-cost demo responses. That real credentials file is ignored by Git, excluded from the container build context, and blocked from public serving. The browser never sees the key.
 
 For the deployed Cloud Run service, provide the same value as `GEMINI_API_KEY` when updating the service. Without a configured key, Pactum AI automatically uses its offline grounded engine.
 

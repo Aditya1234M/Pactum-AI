@@ -18,7 +18,7 @@ function loadLocalCredentials() {
 
 const localCredentials = loadLocalCredentials();
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || localCredentials.GEMINI_API_KEY || "";
-const GEMINI_MODEL = process.env.GEMINI_MODEL || localCredentials.GEMINI_MODEL || "gemini-2.0-flash";
+const GEMINI_MODEL = process.env.GEMINI_MODEL || localCredentials.GEMINI_MODEL || "gemini-flash-lite-latest";
 
 const contentTypes = {
   ".html": "text/html; charset=utf-8",
@@ -109,7 +109,7 @@ async function handleAsk(req, res) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ text: buildPrompt(question, documentText) }] }],
-        generationConfig: { responseMimeType: "application/json", temperature: 0.2 }
+        generationConfig: { temperature: 0.2 }
       })
     });
 
@@ -128,7 +128,8 @@ async function handleAsk(req, res) {
 
     let result;
     try {
-      result = JSON.parse(rawText);
+      const normalizedText = rawText.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+      result = JSON.parse(normalizedText);
     } catch {
       sendJson(res, 502, { error: "The live model returned an invalid answer." });
       return;
